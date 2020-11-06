@@ -17,7 +17,25 @@
       uniform vec2 u_d;
       void main() {
         v_Color = a_Color;
-        gl_Position = vec4(a_Position + u_d, 0.0, 1.0);
+        mat4 translation = mat4(
+          1, 0, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1, 0,
+          u_d, 0, 1
+        );
+        mat4 scalation = mat4(
+          0.5, 0, 0, 0,
+          0, 0.5, 0, 0,
+          0, 0, 0.5, 0,
+          0, 0, 0, 1
+        );
+        mat4 rotation = mat4(
+          0.70710678118, -0.70710678118, 0, 0,
+          0.70710678118, 0.70710678118, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 1
+        );
+        gl_Position = translation * scalation * rotation * vec4(a_Position, 0.0, 1.0);
       }
     </script>
     <script id="fragmentShaderSource" type="notjs">
