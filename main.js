@@ -80,5 +80,10 @@ function main() {
   var primitive = gl.TRIANGLES;
   var offset = 0;
   var nVertex = 6;
+
+  var uD = gl.getUniformLocation(shaderProgram, 'u_d');
+  var d = [0.5, 0.5];
+  gl.uniform2fv(uD, d);
+
   gl.drawArrays(primitive, offset, nVertex);
 }
