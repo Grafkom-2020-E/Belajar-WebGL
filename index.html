@@ -9,33 +9,18 @@
     <canvas id="myCanvas" width="800" height="600">
       Peramban ini tidak mendukung kanvas HTML 5</canvas
     >
+    <script src="gl-matrix-min.js" type="text/javascript"></script>
     <script src="main.js" type="text/javascript"></script>
     <script id="vertexShaderSource" type="notjs">
       attribute vec2 a_Position;
       attribute vec3 a_Color;
       varying vec3 v_Color;
-      uniform vec2 u_d;
+      uniform mat4 u_Model;
+      uniform mat4 u_View;
+      uniform mat4 u_Projection;
       void main() {
         v_Color = a_Color;
-        mat4 translation = mat4(
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          u_d, 0, 1
-        );
-        mat4 scalation = mat4(
-          0.5, 0, 0, 0,
-          0, 0.5, 0, 0,
-          0, 0, 0.5, 0,
-          0, 0, 0, 1
-        );
-        mat4 rotation = mat4(
-          0.70710678118, -0.70710678118, 0, 0,
-          0.70710678118, 0.70710678118, 0, 0,
-          0, 0, 1, 0,
-          0, 0, 0, 1
-        );
-        gl_Position = translation * scalation * rotation * vec4(a_Position, 0.0, 1.0);
+        gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 0.0, 1.0);
       }
     </script>
     <script id="fragmentShaderSource" type="notjs">

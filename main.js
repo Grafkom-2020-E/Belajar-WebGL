@@ -79,9 +79,6 @@ function main() {
   var offset = 0;
   var nVertex = 6;
 
-  var uD = gl.getUniformLocation(shaderProgram, 'u_d');
-  var d = [0.5, 0.5];
-
   var freeze = false;
   function onMouseClick(event) {
     freeze = !freeze; // kita negasikan nilai freeze
@@ -95,14 +92,18 @@ function main() {
   }
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
+
+  var u_Model = gl.getUniformLocation(shaderProgram, 'u_Model');
+  var u_View = gl.getUniformLocation(shaderProgram, 'u_View');
+  var u_Projection = gl.getUniformLocation(shaderProgram, 'u_Projection');
+  var model = glMatrix.mat4.create();
+  var view = glMatrix.mat4.create();
+  var projection = glMatrix.mat4.create();
+  gl.uniformMatrix4fv(u_Projection, false, projection);
   
   function render() {
-    if (!freeze) {
-      // jika freeze == false, lakukan inkrementasi dx dan dy
-      d[0] -= 0.001;
-      d[1] -= 0.001;
-    }
-    gl.uniform2fv(uD, d);
+    gl.uniformMatrix4fv(u_Model, false, model);
+    gl.uniformMatrix4fv(u_View, false, view);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(primitive, offset, nVertex);
