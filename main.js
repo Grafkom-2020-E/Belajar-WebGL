@@ -79,20 +79,6 @@ function main() {
   var offset = 0;
   var nVertex = 6;
 
-  var freeze = false;
-  function onMouseClick(event) {
-    freeze = !freeze; // kita negasikan nilai freeze
-  }
-  document.addEventListener('click', onMouseClick);
-  function onKeyDown(event) {
-    if(event.keyCode == 32) freeze = true;
-  }
-  function onKeyUp(event) {
-    if(event.keyCode == 32) freeze = false;
-  }
-  document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('keyup', onKeyUp);
-
   var u_Model = gl.getUniformLocation(shaderProgram, 'u_Model');
   var u_View = gl.getUniformLocation(shaderProgram, 'u_View');
   var u_Projection = gl.getUniformLocation(shaderProgram, 'u_Projection');
@@ -100,6 +86,24 @@ function main() {
   var view = glMatrix.mat4.create();
   var projection = glMatrix.mat4.create();
   gl.uniformMatrix4fv(u_Projection, false, projection);
+
+  var speed = 0.01;
+  function onKeyDown(event) {
+    console.log(event.keyCode);
+    if (event.keyCode == 65) {
+      glMatrix.mat4.translate(model, model, [-speed, 0.0, 0.0]);
+    } // A = 65
+    else if (event.keyCode == 68) {
+      glMatrix.mat4.translate(model, model, [speed, 0.0, 0.0]);
+    } // D = 68
+    if (event.keyCode == 87) {
+      glMatrix.mat4.translate(model, model, [0.0, speed, 0.0]);
+    } // W = 87
+    if (event.keyCode == 83) {
+      glMatrix.mat4.translate(model, model, [0.0, -speed, 0.0]);
+    } // S = 83
+  }
+  document.addEventListener('keydown', onKeyDown);
   
   function render() {
     gl.uniformMatrix4fv(u_Model, false, model);
@@ -110,6 +114,4 @@ function main() {
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
-  d[0] = 0.0;
-  d[1] = 0.0;
 }
