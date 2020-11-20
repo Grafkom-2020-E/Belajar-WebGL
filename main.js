@@ -98,35 +98,47 @@ function main() {
   function onGamepadConnected(event) {
     console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
     event.gamepad.index, event.gamepad.id, event.gamepad.buttons.length, event.gamepad.axes.length);
+    freeze = true;
   }
   function onGamepadDisconnected(event) {
     console.log('Gamepad removed at index %d: %s.', e.gamepad.index, e.gamepad.id);
+    freeze = false;
   };
   window.addEventListener('gamepadconnected', onGamepadConnected);
   window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
   
   function render() {
     if(navigator.webkitGetGamepads) {
+      console.log("1 " + navigator.webkitGetGamepads);
       var gp = navigator.webkitGetGamepads()[0];
-      if(gp.buttons[0] == 1) {
-        console.log("0");
-      } else if(gp.buttons[1] == 1) {
-        console.log("1");
-      } else if(gp.buttons[2] == 1) {
-        console.log("2");
-      } else if(gp.buttons[3] == 1) {
-        console.log("3");
+      if (gp != null) {
+        if(gp.buttons[0] == 1) {
+          d[1] -= 0.005;
+        } else if(gp.buttons[3] == 1) {
+          d[1] = 0.005;
+        } 
+        if(gp.buttons[1] == 1) {
+          d[0] = 0.005;
+        } else if(gp.buttons[2] == 1) {
+          d[0] -= 0.005;
+        }
       }
     } else {
       var gp = navigator.getGamepads()[0];
-      if(gp.buttons[0].value > 0 || gp.buttons[0].pressed == true) {
-        console.log("0");
-      } else if(gp.buttons[1].value > 0 || gp.buttons[1].pressed == true) {
-        console.log("1");
-      } else if(gp.buttons[2].value > 0 || gp.buttons[2].pressed == true) {
-        console.log("2");
-      } else if(gp.buttons[3].value > 0 || gp.buttons[3].pressed == true) {
-        console.log("3");
+      if (gp != null) {
+        if(gp.buttons[0].value > 0 || gp.buttons[0].pressed == true) {
+          d[1] -= 0.005;
+        } else if(gp.buttons[3].value > 0 || gp.buttons[3].pressed == true) {
+          d[1] += 0.005;
+        }
+        if(gp.buttons[1].value > 0 || gp.buttons[1].pressed == true) {
+          d[0] += 0.005;
+        } else if(gp.buttons[2].value > 0 || gp.buttons[2].pressed == true) {
+          d[0] -= 0.005;
+        }
+      }
+      else {
+        console.log("No connected gamepad");
       }
     }
     if (!freeze) {
