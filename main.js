@@ -87,25 +87,27 @@ function main() {
   var projection = glMatrix.mat4.create();
   gl.uniformMatrix4fv(u_Projection, false, projection);
 
-  var speed = 0.01;
+  var linearspeed = 0.01;
+  var angularspeed = glMatrix.glMatrix.toRadian(1);
   function onKeyDown(event) {
     console.log(event.keyCode);
     if (event.keyCode == 65) {
-      glMatrix.mat4.translate(model, model, [-speed, 0.0, 0.0]);
+      glMatrix.mat4.translate(model, model, [-linearspeed, 0.0, 0.0]);
     } // A = 65
     else if (event.keyCode == 68) {
-      glMatrix.mat4.translate(model, model, [speed, 0.0, 0.0]);
+      glMatrix.mat4.translate(model, model, [linearspeed, 0.0, 0.0]);
     } // D = 68
     if (event.keyCode == 87) {
-      glMatrix.mat4.translate(model, model, [0.0, speed, 0.0]);
+      glMatrix.mat4.translate(model, model, [0.0, linearspeed, 0.0]);
     } // W = 87
     if (event.keyCode == 83) {
-      glMatrix.mat4.translate(model, model, [0.0, -speed, 0.0]);
+      glMatrix.mat4.translate(model, model, [0.0, -linearspeed, 0.0]);
     } // S = 83
   }
   document.addEventListener('keydown', onKeyDown);
   
   function render() {
+    glMatrix.mat4.rotate(model, model, angularspeed, [1.0, 1.0, 1.0]);
     gl.uniformMatrix4fv(u_Model, false, model);
     gl.uniformMatrix4fv(u_View, false, view);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
