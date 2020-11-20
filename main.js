@@ -95,8 +95,40 @@ function main() {
   }
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
+  function onGamepadConnected(event) {
+    console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
+    event.gamepad.index, event.gamepad.id, event.gamepad.buttons.length, event.gamepad.axes.length);
+  }
+  function onGamepadDisconnected(event) {
+    console.log('Gamepad removed at index %d: %s.', e.gamepad.index, e.gamepad.id);
+  };
+  window.addEventListener('gamepadconnected', onGamepadConnected);
+  window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
   
   function render() {
+    if(navigator.webkitGetGamepads) {
+      var gp = navigator.webkitGetGamepads()[0];
+      if(gp.buttons[0] == 1) {
+        console.log("0");
+      } else if(gp.buttons[1] == 1) {
+        console.log("1");
+      } else if(gp.buttons[2] == 1) {
+        console.log("2");
+      } else if(gp.buttons[3] == 1) {
+        console.log("3");
+      }
+    } else {
+      var gp = navigator.getGamepads()[0];
+      if(gp.buttons[0].value > 0 || gp.buttons[0].pressed == true) {
+        console.log("0");
+      } else if(gp.buttons[1].value > 0 || gp.buttons[1].pressed == true) {
+        console.log("1");
+      } else if(gp.buttons[2].value > 0 || gp.buttons[2].pressed == true) {
+        console.log("2");
+      } else if(gp.buttons[3].value > 0 || gp.buttons[3].pressed == true) {
+        console.log("3");
+      }
+    }
     if (!freeze) {
       // jika freeze == false, lakukan inkrementasi dx dan dy
       d[0] -= 0.001;
