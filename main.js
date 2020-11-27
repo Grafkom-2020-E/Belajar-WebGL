@@ -132,6 +132,9 @@ function main() {
     } // S = 83
   }
   document.addEventListener('keydown', onKeyDown);
+
+  var uAmbientColor = gl.getUniformLocation(shaderProgram, 'u_AmbientColor');
+  gl.uniform3fv(uAmbientColor, [0.6, 0.6, 0.9]);
   
   function render() {
     glMatrix.mat4.rotate(model, model, angularspeed, [1.0, 1.0, 1.0]);

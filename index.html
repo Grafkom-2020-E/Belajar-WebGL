@@ -26,8 +26,10 @@
     <script id="fragmentShaderSource" type="notjs">
       precision mediump float;
       varying vec3 v_Color;
+      uniform vec3 u_AmbientColor;
       void main() {
-        gl_FragColor = vec4(v_Color, 1.0);
+        vec3 ambient = u_AmbientColor * v_Color;
+        gl_FragColor = vec4(ambient, 1.0);
       }
     </script>
   </body>
