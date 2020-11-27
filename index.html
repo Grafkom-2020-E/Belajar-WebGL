@@ -12,7 +12,7 @@
     <script src="gl-matrix-min.js" type="text/javascript"></script>
     <script src="main.js" type="text/javascript"></script>
     <script id="vertexShaderSource" type="notjs">
-      attribute vec2 a_Position;
+      attribute vec3 a_Position;
       attribute vec3 a_Color;
       varying vec3 v_Color;
       uniform mat4 u_Model;
@@ -20,7 +20,7 @@
       uniform mat4 u_Projection;
       void main() {
         v_Color = a_Color;
-        gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 0.0, 1.0);
+        gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
       }
     </script>
     <script id="fragmentShaderSource" type="notjs">

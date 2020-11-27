@@ -2,21 +2,47 @@ function main() {
   var canvas = document.getElementById("myCanvas");
   var gl = canvas.getContext("webgl");
 
-  // Definisi data verteks 3 buah titik
-  /**
-   * Titik A (-0.5, -0.5)
-   * Titik B ( 0.5, -0.5)
-   * Titik C ( 0.5,  0.5)
-   * Titik D (-0.5,  0.5)
-   */
-  var vertices = [
-    -0.5, -0.5, 1.0, 0.0, 0.0,      // Titik A, MERAH
-    0.5, -0.5, 0.0, 1.0, 0.0,       // Titik B, HIJAU
-    0.5, 0.5, 0.0, 0.0, 1.0,        // Titik C, BIRU
-    -0.5, -0.5, 1.0, 1.0, 1.0,      // Titik A, PUTIH
-    0.5, 0.5, 1.0, 1.0, 1.0,        // Titik C, PUTIH
-    -0.5, 0.5, 1.0, 1.0, 1.0        // Titik D, PUTIH
+  var vertices = [];
+  var cubePoints = [
+    [-0.5,  0.5,  0.5],   // A, 0
+    [-0.5, -0.5,  0.5],   // B, 1
+    [ 0.5, -0.5,  0.5],   // C, 2 
+    [ 0.5,  0.5,  0.5],   // D, 3
+    [-0.5,  0.5, -0.5],   // E, 4
+    [-0.5, -0.5, -0.5],   // F, 5
+    [ 0.5, -0.5, -0.5],   // G, 6
+    [ 0.5,  0.5, -0.5]    // H, 7 
   ];
+  var cubeColors = [
+    [],
+    [1.0, 0.0, 0.0],    // merah
+    [0.0, 1.0, 0.0],    // hijau
+    [0.0, 0.0, 1.0],    // biru
+    [1.0, 1.0, 1.0],    // putih
+    [1.0, 0.5, 0.0],    // oranye
+    [1.0, 1.0, 0.0],    // kuning
+    []
+  ];
+
+  function quad(a, b, c, d) {
+    var indices = [a, b, c, c, d, a];
+    for (var i=0; i<indices.length; i++) {
+      var point = cubePoints[indices[i]];  // [x, y, z]
+      for (var j=0; j<point.length; j++) {
+        vertices.push(point[j]);
+      }
+      var color = cubeColors[a]; // [r, g, b]
+      for (var j=0; j<color.length; j++) {
+        vertices.push(color[j]);
+      }
+    }
+  }
+  quad(2, 6, 7, 3); // KANAN, hijau
+  quad(3, 7, 4, 0); // ATAS, biru
+  quad(4, 5, 1, 0); // KIRI, putih
+  quad(5, 4, 7, 6); // BELAKANG, oranye
+  quad(6, 2, 1, 5); // BAWAH, kuning
+  quad(1, 2, 3, 0); // DEPAN, merah
 
   var vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -57,27 +83,28 @@ function main() {
   var aColorLoc = gl.getAttribLocation(shaderProgram, "a_Color");
   gl.vertexAttribPointer(
     aPositionLoc, 
-    2, 
+    3, 
     gl.FLOAT, 
     false, 
-    5 * Float32Array.BYTES_PER_ELEMENT, 
+    6 * Float32Array.BYTES_PER_ELEMENT, 
     0);
   gl.vertexAttribPointer(
     aColorLoc, 
     3, 
     gl.FLOAT, 
     false, 
-    5 * Float32Array.BYTES_PER_ELEMENT, 
-    2 * Float32Array.BYTES_PER_ELEMENT);
+    6 * Float32Array.BYTES_PER_ELEMENT, 
+    3 * Float32Array.BYTES_PER_ELEMENT);
   gl.enableVertexAttribArray(aPositionLoc);
   gl.enableVertexAttribArray(aColorLoc);
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
   gl.viewport(100, 0, canvas.height, canvas.height);
+  gl.enable(gl.DEPTH_TEST);
 
   var primitive = gl.TRIANGLES;
   var offset = 0;
-  var nVertex = 6;
+  var nVertex = 36;
 
   var u_Model = gl.getUniformLocation(shaderProgram, 'u_Model');
   var u_View = gl.getUniformLocation(shaderProgram, 'u_View');
@@ -111,7 +138,7 @@ function main() {
     gl.uniformMatrix4fv(u_Model, false, model);
     gl.uniformMatrix4fv(u_View, false, view);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(primitive, offset, nVertex);
     requestAnimationFrame(render);
   }
