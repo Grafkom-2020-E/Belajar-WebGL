@@ -16,11 +16,27 @@ function main() {
   var cubeColors = [
     [],
     [1.0, 0.0, 0.0],    // merah
-    [0.0, 1.0, 0.0],    // hijau
-    [0.0, 0.0, 1.0],    // biru
-    [1.0, 1.0, 1.0],    // putih
-    [1.0, 0.5, 0.0],    // oranye
-    [1.0, 1.0, 0.0],    // kuning
+    [1.0, 0.0, 0.0],    // merah
+    [1.0, 0.0, 0.0],    // merah
+    [1.0, 0.0, 0.0],    // merah
+    [1.0, 0.0, 0.0],    // merah
+    [1.0, 0.0, 0.0],    // merah
+    // [0.0, 1.0, 0.0],    // hijau
+    // [0.0, 0.0, 1.0],    // biru
+    // [1.0, 1.0, 1.0],    // putih
+    // [1.0, 0.5, 0.0],    // oranye
+    // [1.0, 1.0, 0.0],    // kuning
+    []
+  ];
+
+  var cubeNormals = [
+    [],
+    [0.0, 0.0, 1.0],    // depan
+    [1.0, 0.0, 0.0],    // kanan
+    [0.0, 1.0, 0.0],    // atas
+    [-1.0, 0.0, 0.0],   // kiri
+    [0.0, 0.0, -1.0],   // belakang
+    [0.0, -1.0, 0.0],   // bawah
     []
   ];
 
@@ -35,14 +51,18 @@ function main() {
       for (var j=0; j<color.length; j++) {
         vertices.push(color[j]);
       }
+      var normal = cubeNormals[a];
+      for (var j=0; j<normal.length; j++) {
+        vertices.push(normal[j]);
+      }
     }
   }
+  quad(1, 2, 3, 0); // DEPAN, merah
   quad(2, 6, 7, 3); // KANAN, hijau
   quad(3, 7, 4, 0); // ATAS, biru
   quad(4, 5, 1, 0); // KIRI, putih
   quad(5, 4, 7, 6); // BELAKANG, oranye
   quad(6, 2, 1, 5); // BAWAH, kuning
-  quad(1, 2, 3, 0); // DEPAN, merah
 
   var vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -81,22 +101,31 @@ function main() {
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   var aPositionLoc = gl.getAttribLocation(shaderProgram, "a_Position");
   var aColorLoc = gl.getAttribLocation(shaderProgram, "a_Color");
+  var aNormalLoc = gl.getAttribLocation(shaderProgram, "a_Normal");
   gl.vertexAttribPointer(
     aPositionLoc, 
     3, 
     gl.FLOAT, 
     false, 
-    6 * Float32Array.BYTES_PER_ELEMENT, 
+    9 * Float32Array.BYTES_PER_ELEMENT, 
     0);
   gl.vertexAttribPointer(
     aColorLoc, 
     3, 
     gl.FLOAT, 
     false, 
-    6 * Float32Array.BYTES_PER_ELEMENT, 
+    9 * Float32Array.BYTES_PER_ELEMENT, 
     3 * Float32Array.BYTES_PER_ELEMENT);
+  gl.vertexAttribPointer(
+    aNormalLoc, 
+    3, 
+    gl.FLOAT, 
+    false, 
+    9 * Float32Array.BYTES_PER_ELEMENT, 
+    6 * Float32Array.BYTES_PER_ELEMENT);
   gl.enableVertexAttribArray(aPositionLoc);
   gl.enableVertexAttribArray(aColorLoc);
+  gl.enableVertexAttribArray(aNormalLoc);
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
   gl.viewport(100, 0, canvas.height, canvas.height);
@@ -133,13 +162,23 @@ function main() {
   }
   document.addEventListener('keydown', onKeyDown);
 
+  var uNormalModel = gl.getUniformLocation(shaderProgram, 'u_NormalModel');
   var uAmbientColor = gl.getUniformLocation(shaderProgram, 'u_AmbientColor');
-  gl.uniform3fv(uAmbientColor, [0.6, 0.6, 0.9]);
+  gl.uniform3fv(uAmbientColor, [0.5, 0.5, 0.5]);
+  var uLightColor = gl.getUniformLocation(shaderProgram, 'u_LightColor');
+  gl.uniform3fv(uLightColor, [1, 1, 1]);
+  var uLightPosition = gl.getUniformLocation(shaderProgram, 'u_LightPosition');
+  gl.uniform3fv(uLightPosition, [2, -3, 3]);
+
+  // glMatrix.mat4.rotate(model, model, glMatrix.glMatrix.toRadian(45), [1.0, 1.0, 1.0]);
   
   function render() {
     glMatrix.mat4.rotate(model, model, angularspeed, [1.0, 1.0, 1.0]);
     gl.uniformMatrix4fv(u_Model, false, model);
     gl.uniformMatrix4fv(u_View, false, view);
+    var normalModel = glMatrix.mat3.create();
+    glMatrix.mat3.normalFromMat4(normalModel, model);
+    gl.uniformMatrix3fv(uNormalModel, false, normalModel);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(primitive, offset, nVertex);

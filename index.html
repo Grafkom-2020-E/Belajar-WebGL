@@ -14,22 +14,30 @@
     <script id="vertexShaderSource" type="notjs">
       attribute vec3 a_Position;
       attribute vec3 a_Color;
+      attribute vec3 a_Normal;
       varying vec3 v_Color;
       uniform mat4 u_Model;
       uniform mat4 u_View;
       uniform mat4 u_Projection;
+      uniform mat3 u_NormalModel;
+      uniform vec3 u_AmbientColor;
+      uniform vec3 u_LightColor;
+      uniform vec3 u_LightPosition;
       void main() {
-        v_Color = a_Color;
         gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
+        vec3 ambient = u_AmbientColor * a_Color;
+        vec3 n_NormalVector = normalize(u_NormalModel * a_Normal);
+        vec3 n_LightVector = normalize(u_LightPosition - (u_Model * vec4(a_Position, 1.0)).xyz);
+        float dotProductNL = max(dot(n_NormalVector, n_LightVector), 0.0);
+        vec3 diffuse = a_Color * u_LightColor * dotProductNL;
+        v_Color = ambient + diffuse;
       }
     </script>
     <script id="fragmentShaderSource" type="notjs">
       precision mediump float;
       varying vec3 v_Color;
-      uniform vec3 u_AmbientColor;
       void main() {
-        vec3 ambient = u_AmbientColor * v_Color;
-        gl_FragColor = vec4(ambient, 1.0);
+        gl_FragColor = vec4(v_Color, 1.0);
       }
     </script>
   </body>
