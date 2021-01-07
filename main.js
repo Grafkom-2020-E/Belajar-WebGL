@@ -16,16 +16,11 @@ function main() {
   var cubeColors = [
     [],
     [1.0, 0.0, 0.0],    // merah
-    [1.0, 0.0, 0.0],    // merah
-    [1.0, 0.0, 0.0],    // merah
-    [1.0, 0.0, 0.0],    // merah
-    [1.0, 0.0, 0.0],    // merah
-    [1.0, 0.0, 0.0],    // merah
-    // [0.0, 1.0, 0.0],    // hijau
-    // [0.0, 0.0, 1.0],    // biru
-    // [1.0, 1.0, 1.0],    // putih
-    // [1.0, 0.5, 0.0],    // oranye
-    // [1.0, 1.0, 0.0],    // kuning
+    [0.0, 1.0, 0.0],    // hijau
+    [0.0, 0.0, 1.0],    // biru
+    [1.0, 1.0, 1.0],    // putih
+    [1.0, 0.5, 0.0],    // oranye
+    [1.0, 1.0, 0.0],    // kuning
     []
   ];
 
@@ -140,11 +135,21 @@ function main() {
   var u_Projection = gl.getUniformLocation(shaderProgram, 'u_Projection');
   var model = glMatrix.mat4.create();
   var view = glMatrix.mat4.create();
+  glMatrix.mat4.lookAt(view,
+    [0.0, 0.0, 2.0], // di mana posisi kamera (posisi)
+    [0.0, 0.0, -2.0], // ke mana kamera menghadap (vektor)
+    [0.0, 1.0, 0.0] // ke mana arah atas kamera (vektor)
+    );
   var projection = glMatrix.mat4.create();
+  glMatrix.mat4.perspective(projection, 
+    glMatrix.glMatrix.toRadian(90), // fov dalam radian
+    1.0,  // rasio aspek
+    0.5,  // near
+    10.0  // far
+    );
   gl.uniformMatrix4fv(u_Projection, false, projection);
 
   var linearspeed = 0.01;
-  var angularspeed = glMatrix.glMatrix.toRadian(1);
   function onKeyDown(event) {
     console.log(event.keyCode);
     if (event.keyCode == 65) {
@@ -170,10 +175,53 @@ function main() {
   var uLightPosition = gl.getUniformLocation(shaderProgram, 'u_LightPosition');
   gl.uniform3fv(uLightPosition, [2, -3, 3]);
 
-  // glMatrix.mat4.rotate(model, model, glMatrix.glMatrix.toRadian(45), [1.0, 1.0, 1.0]);
+  // Memutar kubus secara euclidean menggunakan mouse
+  var rotation = glMatrix.mat4.create();
+  var dragging, lastx, lasty;
+  function onMouseDown(event) {
+    var x = event.clientX;
+    var y = event.clientY;
+    var rect = event.target.getBoundingClientRect();
+    // Saat mouse diklik-kiri di area aktif browser,
+    //  maka flag dragging akan diaktifkan
+    if (
+      rect.left <= x &&
+      rect.right > x &&
+      rect.top <= y &&
+      rect.bottom > y
+    ) {
+      dragging = true;
+      lastx = x;
+      lasty = y;
+    }
+  }
+  function onMouseUp(event) {
+    // Ketika klik-kiri mouse dilipas
+    dragging = false;
+  }
+  function onMouseMove(event) {
+    if (dragging) {
+      var x = event.clientX;
+      var y = event.clientY;
+      // Asumsinya geser 1 piksel = putar 1/2 derajat
+      var dx = (x - lastx) / 2;
+      var dy = (y - lasty) / 2;
+      var radx = glMatrix.glMatrix.toRadian(dy); // Rotasi terhadap sumbu x sebesar dy
+      var rady = glMatrix.glMatrix.toRadian(dx); // Rotasi terhadap sumbu y sebesar dx
+      // Menggunakan dx dan dy untuk memutar kubus
+      glMatrix.mat4.rotate(rotation, rotation, radx, [1, 0, 0, 0]); // rotasi terhadap sumbu x
+      glMatrix.mat4.rotate(rotation, rotation, rady, [0, 1, 0, 0]); // rotasi terhadap sumbu y
+    }
+    lastx = x;
+    lasty = y;
+  }
+  document.addEventListener('mousedown', onMouseDown);
+  document.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('mousemove', onMouseMove);
   
   function render() {
-    glMatrix.mat4.rotate(model, model, angularspeed, [1.0, 1.0, 1.0]);
+    model = glMatrix.mat4.create(); // Matriks model kita reset ulang setiap kali render
+    glMatrix.mat4.multiply(model, model, rotation);
     gl.uniformMatrix4fv(u_Model, false, model);
     gl.uniformMatrix4fv(u_View, false, view);
     var normalModel = glMatrix.mat3.create();
