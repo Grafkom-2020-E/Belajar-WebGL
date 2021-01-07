@@ -203,14 +203,24 @@ function main() {
     if (dragging) {
       var x = event.clientX;
       var y = event.clientY;
+      var xaxis = glMatrix.vec4.create();
+      var yaxis = glMatrix.vec4.create();
+      // Agar sumbu X dan Y di object coordinate dapat menyesuaikan diri
+      //  dengan sumbu X dan Y di world coordinate ([1, 0, 0, 0] dan [0, 1, 0, 0]),
+      //  maka mereka perlu ditransformasikan kembali
+      //  dengan inversi dari rotasi yang dieksekusi sebelumnya
+      var backRotation = glMatrix.mat4.create();
+      glMatrix.mat4.invert(backRotation, rotation);
+      glMatrix.vec4.transformMat4(xaxis, glMatrix.vec4.fromValues(1, 0, 0, 0), backRotation);
+      glMatrix.vec4.transformMat4(yaxis, glMatrix.vec4.fromValues(0, 1, 0, 0), backRotation);
       // Asumsinya geser 1 piksel = putar 1/2 derajat
       var dx = (x - lastx) / 2;
       var dy = (y - lasty) / 2;
       var radx = glMatrix.glMatrix.toRadian(dy); // Rotasi terhadap sumbu x sebesar dy
       var rady = glMatrix.glMatrix.toRadian(dx); // Rotasi terhadap sumbu y sebesar dx
       // Menggunakan dx dan dy untuk memutar kubus
-      glMatrix.mat4.rotate(rotation, rotation, radx, [1, 0, 0, 0]); // rotasi terhadap sumbu x
-      glMatrix.mat4.rotate(rotation, rotation, rady, [0, 1, 0, 0]); // rotasi terhadap sumbu y
+      glMatrix.mat4.rotate(rotation, rotation, radx, xaxis); // rotasi terhadap sumbu x
+      glMatrix.mat4.rotate(rotation, rotation, rady, yaxis); // rotasi terhadap sumbu y
     }
     lastx = x;
     lasty = y;
